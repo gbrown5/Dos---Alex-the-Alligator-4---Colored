@@ -127,7 +127,7 @@ void _crush_jump(Tactor *a, Tmap *m) {
                 create_burst(particle, a->x +  8, a->y, 8, 10, 25, PARTICLE_DUST);
                 create_burst(particle, a->x + 16, a->y, 8, 10, 25, PARTICLE_DUST);
                 create_burst(particle, a->x + 24, a->y, 8, 10, 25, PARTICLE_DUST);
-                ////play_sound_id(SMPL_CRUSH_LAND);
+                play_sound_id(SMPL_CRUSH_LAND);
                 a->mode ++;
         }
         else if (is_ground(m, a->x+15, a->y)) {
@@ -135,7 +135,7 @@ void _crush_jump(Tactor *a, Tmap *m) {
                 create_burst(particle, a->x +  8, a->y, 8, 10, 25, PARTICLE_DUST);
                 create_burst(particle, a->x + 16, a->y, 8, 10, 25, PARTICLE_DUST);
                 create_burst(particle, a->x + 24, a->y, 8, 10, 25, PARTICLE_DUST);
-                ////play_sound_id(SMPL_CRUSH_LAND);
+                play_sound_id(SMPL_CRUSH_LAND);
                 a->mode ++;
         }
         else if (is_ground(m, a->x+30, a->y)) {
@@ -143,7 +143,7 @@ void _crush_jump(Tactor *a, Tmap *m) {
                 create_burst(particle, a->x +  8, a->y, 8, 10, 25, PARTICLE_DUST);
                 create_burst(particle, a->x + 16, a->y, 8, 10, 25, PARTICLE_DUST);
                 create_burst(particle, a->x + 24, a->y, 8, 10, 25, PARTICLE_DUST);
-                ////play_sound_id(SMPL_CRUSH_LAND);
+                play_sound_id(SMPL_CRUSH_LAND);
                 a->mode ++;
         }
 }
@@ -171,11 +171,11 @@ void _spike_jump(Tactor *a, Tmap *m) {
                         mp->tile = mp->type = mp->mask = 0;
                         create_burst(particle, (tx << 4) + 7, (ty << 4) + 7, 32, 64, 0, -1);
                         create_burst(particle, (tx << 4) + 7, (ty << 4) + 7, 32, 64, 0, -1);
-                        ////play_sound_id(SMPL_CRUSH);
+                        play_sound_id(SMPL_CRUSH);
                 }
 
                 create_burst(particle, a->x + 16, a->y, 8, 6, 25, PARTICLE_DUST);
-                ////play_sound_id(SMPL_CRUSH_LAND);
+                play_sound_id(SMPL_CRUSH_LAND);
                 a->toggle = 1;  // don't crush any more , fall and land
         }
 
@@ -191,11 +191,11 @@ void _spike_jump(Tactor *a, Tmap *m) {
                         mp->tile = mp->type = mp->mask = 0;
                         create_burst(particle, (tx << 4) + 7, (ty << 4) + 7, 32, 64, 0, -1);
                         create_burst(particle, (tx << 4) + 7, (ty << 4) + 7, 32, 64, 0, -1);
-                        ////play_sound_id(SMPL_CRUSH);
+                        play_sound_id(SMPL_CRUSH);
                 }
 
                 create_burst(particle, a->x + 16, a->y, 8, 6, 25, PARTICLE_DUST);
-                //play_sound_id(SMPL_CRUSH_LAND);
+                play_sound_id(SMPL_CRUSH_LAND);
                 a->toggle = 1;  // don't crush any more , fall and land
         }
 
@@ -211,11 +211,11 @@ void _spike_jump(Tactor *a, Tmap *m) {
                         mp->tile = mp->type = mp->mask = 0;
                         create_burst(particle, (tx << 4) + 7, (ty << 4) + 7, 32, 64, 0, -1);
                         create_burst(particle, (tx << 4) + 7, (ty << 4) + 7, 32, 64, 0, -1);
-                        //play_sound_id(SMPL_CRUSH);
+                        play_sound_id(SMPL_CRUSH);
                 }
 
                 create_burst(particle, a->x + 16, a->y, 8, 6, 25, PARTICLE_DUST);
-                //play_sound_id(SMPL_CRUSH_LAND);
+                play_sound_id(SMPL_CRUSH_LAND);
                 a->toggle = 1;  // don't crush any more , fall and land
         }
 
@@ -228,7 +228,7 @@ void _spike_jump(Tactor *a, Tmap *m) {
 void update_actor_with_map(Tactor *a, Tmap *m) {
         if (a->energy <= 0 && a->status == AC_NORM) {
                 a->status = AC_DEAD;
-                //play_sound_id(SMPL_E_DIE);
+                play_sound_id(SMPL_E_DIE);
                 a->dy = -8;
                 if (a->type == MAP_GUARD1) a->dy =- 16;
 
@@ -274,7 +274,7 @@ void update_actor_with_map(Tactor *a, Tmap *m) {
                                 set_bullet(b, a->x + (diff > 0 ? 8 : -12), a->y - 16, (diff > 0 ? 3 : -3), 0, data[ENEMY6].dat, 1);
                                 create_burst(particle, a->x + (diff > 0 ? 18 : -2), a->y - 8, 8, 8, 25, PARTICLE_DUST);
                                 a->mode = 0;
-                                //play_sound_id(SMPL_SHOOT);
+                                play_sound_id(SMPL_SHOOT);
                         }
                 }
         }
@@ -334,7 +334,7 @@ void update_actor_with_map(Tactor *a, Tmap *m) {
                         if (hit) {
                                 a->dy = -1;
                                 a->mode = 3;
-                                //play_sound_id(SMPL_CRUSH_LAND);
+                                play_sound_id(SMPL_CRUSH_LAND);
                                 create_burst(particle, a->x + 16, a->y, 8, 6, 25, PARTICLE_DUST);
                         }
                 }
@@ -418,7 +418,7 @@ void update_actor_with_map(Tactor *a, Tmap *m) {
                                 Tbullet *b;
                                 int i;
 
-                                //play_sound_id(SMPL_SHOOT);
+                                play_sound_id(SMPL_SHOOT);
                                 for(i = 0; i < 3; i ++) {
                                         b = get_free_bullet(bullet, MAX_BULLETS);
                                         if (b != NULL) {
@@ -484,7 +484,7 @@ void update_actor_with_map(Tactor *a, Tmap *m) {
 
         // play/adjust sound
         if (a->sound != -1) {
-                //adjust_sound_id_ex(a->sound, a->x);
+                adjust_sound_id_ex(a->sound, a->x);
         }
 
 

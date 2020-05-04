@@ -39,6 +39,7 @@
 #include "main.h"
 #include "edit.h"
 #include "shooter.h"
+#include "dosdir.h"
 
 #include "../data/data.h"
 
@@ -126,8 +127,11 @@ int num_levels;
 int got_sound = 0;
 Toptions options;
 int menu_choice = 1;
+int custScroll = 0;
 int playing_original_game = 1;
 int init_ok = 0;
+struct DirList dlCustom;
+
 int do_custom_menu();
 
 PALETTE palette_black;          // all-black palette for fades
@@ -192,7 +196,7 @@ void take_screenshot(BITMAP *bmp) {
         char buf[256];
         int ok = 0;
 
-        // check if the file name allready exists
+        // check if the file name already exists
         do {
                 sprintf(buf, "a4_%03d.pcx", number ++);
                 if (!exists(buf)) ok = 1;
@@ -709,6 +713,9 @@ int init_game(const char *map_file) {
         log2file(" setting window title");
         set_window_title("Alex 4 Color Edition");
 
+        //Load directory list for custom levels
+        dlCustom.total = getDir("customlevels", dlCustom.dirList);
+
         // register dumb
         log2file(" registering dumb");
         dumb_register_packfiles();
@@ -832,7 +839,7 @@ int init_game(const char *map_file) {
         log2file(" installing keyboard");
         install_keyboard();
         log2file(" installing mouse");
-        //install_mouse();
+        install_mouse();
 
         // fix palette
         for(i = 0; i < 256; i ++) {
@@ -2527,7 +2534,7 @@ void draw_title(BITMAP *bmp, int tick) {
 
         draw_scroller(&hscroll, bmp, 0, 110);
 
-        y = 60;
+        y = 48;
         x = 50;
         textout(bmp, data[THE_FONT].dat, start_string, x+1, y+1, 1);
         textout(bmp, data[THE_FONT].dat, start_string, x, y, 4);
@@ -2537,6 +2544,10 @@ void draw_title(BITMAP *bmp, int tick) {
         textout(bmp, data[THE_FONT].dat, "HIGH SCORES", x, y, 4);
 
         y += step;
+        textout(bmp, data[THE_FONT].dat, "EDIT MAP", x+1, y+1, 1);
+        textout(bmp, data[THE_FONT].dat, "EDIT MAP", x, y, 4);
+
+        y += step;
         textout(bmp, data[THE_FONT].dat, "CUSTOM MAPS", x+1, y+1, 1);
         textout(bmp, data[THE_FONT].dat, "CUSTOM MAPS", x, y, 4);
 
@@ -2544,10 +2555,11 @@ void draw_title(BITMAP *bmp, int tick) {
         textout(bmp, data[THE_FONT].dat, "QUIT", x+1, y+1, 1);
         textout(bmp, data[THE_FONT].dat, "QUIT", x, y, 4);
 
-        draw_sprite(bmp, data[POINTER].dat, x - 25 + fixtoi(3 * fcos(itofix(tick << 2))), 44 + menu_choice * step);
+        draw_sprite(bmp, data[POINTER].dat, x - 25 + fixtoi(3 * fcos(itofix(tick << 2))), 32 + menu_choice * step);
 }
 
 // by MK2k
+/*
 void draw_custom_menu(BITMAP *bmp, int tick) {
         int w, h;
         char start_string[128] = "CUSTOM 1";
@@ -2578,6 +2590,42 @@ void draw_custom_menu(BITMAP *bmp, int tick) {
         y += step;
         textout(bmp, data[THE_FONT].dat, "CUSTOM 4", x+1, y+1, 1);
         textout(bmp, data[THE_FONT].dat, "CUSTOM 4", x, y, 4);
+
+        draw_sprite(bmp, data[POINTER].dat, x - 25 + fixtoi(3 * fcos(itofix(tick << 2))), 44 + menu_choice * step);
+}*/
+//int test = 0;
+void draw_custom_menu(BITMAP *bmp, int tick) {
+        int w, h;
+        int y, x, step = 12;
+
+        blit(data[ALEX_BG].dat, bmp, 0, 0, 0, 0, 160, 112);
+        rectfill(bmp, 0, 112, 160, 120, 2);
+
+        w = ((BITMAP *)data[ALEX_LOGO].dat)->w;
+        h = ((BITMAP *)data[ALEX_LOGO].dat)->h;
+        draw_sprite(bmp, data[ALEX_LOGO].dat, 80 - w/2, 30 - h/2);
+
+        draw_scroller(&hscroll, bmp, 0, 110);
+
+        y = 60;
+        x = 50;
+
+
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll], x+1, y+1, 1);
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll], x, y, 4);
+
+        y += step;
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll+1], x+1, y+1, 1);
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll+1], x, y, 4);
+
+        y += step;
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll+2], x+1, y+1, 1);
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll+2], x, y, 4);
+
+        y += step;
+
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll+3], x+1, y+1, 1);
+        textout(bmp, data[THE_FONT].dat, dlCustom.dirList[custScroll+3], x, y, 4);
 
         draw_sprite(bmp, data[POINTER].dat, x - 25 + fixtoi(3 * fcos(itofix(tick << 2))), 44 + menu_choice * step);
 }
@@ -2764,14 +2812,20 @@ int do_main_menu() {
                                                 status = GS_SCORES;
                                                 play_sound(sfx[SMPL_MENU]);
                                         }
-                                        if (menu_choice == 3) {
+                                        if (menu_choice == 3)
+                                        {
+                                            status = GS_EDIT;
+                                            log2file("map editor selected");
+                                            play_sound(sfx[SMPL_MENU]);
+                                        }
+                                        if (menu_choice == 4) {
                                                 //log2file(" edit selected");
                                                 //status = GS_EDIT;     // by MK2k
                                                 log2file(" custom selected");
                                                 status = GS_CUSTOM;
                                                 play_sound(sfx[SMPL_MENU]);
                                         }
-                                        if (menu_choice == 4) {
+                                        if (menu_choice == 5) {
                                                 log2file(" quit selected");
                                                 status = GS_QUIT_MENU;
                                                 play_sound(sfx[SMPL_MENU]);
@@ -2781,11 +2835,11 @@ int do_main_menu() {
 
                                 // esc is always a shortcut to quit
                                 if (key[KEY_ESC]) {
-                                        if (menu_choice == 4) {
+                                        if (menu_choice == 5) {
                                                 log2file(" quit selected");
                                                 status = GS_QUIT_MENU;
                                         }
-                                        else menu_choice = 4;
+                                        else menu_choice = 5;
                                         play_sound(sfx[SMPL_MENU]);
                                         count = 10;
                                 }
@@ -2799,7 +2853,7 @@ int do_main_menu() {
                                 }
                                 if (key[KEY_DOWN] || is_down(&ctrl)) {
                                         menu_choice ++;
-                                        if (menu_choice > 4) menu_choice = 1;
+                                        if (menu_choice > 5) menu_choice = 1;
                                         play_sound(sfx[SMPL_MENU]);
                                         count = 10;
                                 }
@@ -2809,10 +2863,10 @@ int do_main_menu() {
                         if (!is_any(&ctrl) && !key[KEY_UP] && !key[KEY_ESC] && !key[KEY_DOWN] && !key[KEY_SPACE] && !key[KEY_ENTER]) count = 0;
 
                         // shortcuts to gfx modes
-                        if (key[KEY_1]) { while(key[KEY_1]); switch_gfx_mode(GFX_AUTODETECT_WINDOWED, 160, 120); }
-                        if (key[KEY_2]) { while(key[KEY_2]); switch_gfx_mode(GFX_AUTODETECT_WINDOWED, 320, 240); }
-                        if (key[KEY_3]) { while(key[KEY_3]); switch_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480); }
-                        if (key[KEY_4]) { while(key[KEY_4]); switch_gfx_mode(GFX_AUTODETECT_FULLSCREEN, 640, 480); }
+                        //if (key[KEY_1]) { while(key[KEY_1]); switch_gfx_mode(GFX_AUTODETECT_WINDOWED, 160, 120); }
+                        //if (key[KEY_2]) { while(key[KEY_2]); switch_gfx_mode(GFX_AUTODETECT_WINDOWED, 320, 240); }
+                        //if (key[KEY_3]) { while(key[KEY_3]); switch_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480); }
+                        //if (key[KEY_4]) { while(key[KEY_4]); switch_gfx_mode(GFX_AUTODETECT_FULLSCREEN, 640, 480); }
 
                         cycle_count --;
                 }
@@ -3135,6 +3189,9 @@ int do_custom_menu() {
 
         log2file("\nRunning custom menu:");
 
+        menu_choice = 1;
+        custScroll = 0;
+
         draw_custom_menu(swap_screen, tick);
         blit_to_screen(swap_screen);
         fade_in_pal(100);
@@ -3186,16 +3243,46 @@ int do_custom_menu() {
                                         count = 10;
                                 }
 
+                                //escape back to main menu
+                                if(key[KEY_ESC])
+                                {
+                                    status = 0;
+                                }
+
                                 // movements in the menu
                                 if (key[KEY_UP] || is_up(&ctrl)) {
-                                        menu_choice --;
-                                        if (menu_choice < 1) menu_choice = 4;
+                                        if(menu_choice <= 3 && (custScroll > 0))
+                                        {
+                                            custScroll--;
+                                        }
+                                        else
+                                        {
+                                            menu_choice--;
+                                        }
+
+                                        if (menu_choice < 1)
+                                        {
+                                             menu_choice = 4;
+                                             custScroll = dlCustom.total-4;
+                                        }
                                         play_sound(sfx[SMPL_MENU]);
                                         count = 10;
                                 }
                                 if (key[KEY_DOWN] || is_down(&ctrl)) {
-                                        menu_choice ++;
-                                        if (menu_choice > 4) menu_choice = 1;
+                                        if(menu_choice >= 2 && (custScroll+5 <= dlCustom.total))
+                                        {
+                                            custScroll++;
+                                        }
+                                        else
+                                        {
+                                           menu_choice ++;
+                                        }
+
+                                        if (menu_choice > 4)
+                                        {
+                                            menu_choice = 1;
+                                            custScroll = 0;
+                                        }
                                         play_sound(sfx[SMPL_MENU]);
                                         count = 10;
                                 }
@@ -3227,7 +3314,7 @@ int do_custom_menu() {
                 int level = 0;
 
                 char map_file[255];
-                sprintf(map_file, "customlevels/custom%i/custom.txt", menu_choice);
+                sprintf(map_file, "customlevels/%s/custom.txt", dlCustom.dirList[custScroll+menu_choice-1]);
 
                 // load maps
                 playing_original_game = 0;
@@ -3428,15 +3515,9 @@ int do_custom_menu() {
 int main(int argc, char **argv) {
         FILE *fp;
         int i;
-        char full_path[1024];
 
         // init allegro
         allegro_init();
-
-        // get working directory
-        get_executable_name(full_path, 1024);
-        replace_filename(working_directory, full_path, "", 1024);
-        chdir(working_directory);
 
         // log program arguments
         log2file("Game started with the following commands:");
@@ -3478,6 +3559,7 @@ int main(int argc, char **argv) {
 
         // tidy up
         uninit_game();
+        free_list(dlCustom.total, dlCustom.dirList);
         allegro_exit();
         log2file("\nDone...\n");
 
