@@ -714,7 +714,7 @@ int init_game(const char *map_file) {
         set_window_title("Alex 4 Color Edition");
 
         //Load directory list for custom levels
-        dlCustom.total = getDir("customlevels", dlCustom.dirList);
+        dlCustom.total = getDir("custom", dlCustom.dirList);
 
         // register dumb
         log2file(" registering dumb");
@@ -3314,7 +3314,7 @@ int do_custom_menu() {
                 int level = 0;
 
                 char map_file[255];
-                sprintf(map_file, "customlevels/%s/custom.txt", dlCustom.dirList[custScroll+menu_choice-1]);
+                sprintf(map_file, "custom/%s/custom.txt", dlCustom.dirList[custScroll+menu_choice-1]);
 
                 // load maps
                 playing_original_game = 0;
